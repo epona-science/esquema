@@ -12,7 +12,7 @@ module Esquema
         rescue StandardError
           nil
         end
-      when :float
+      when :float, :decimal
         begin
           Float(value)
         rescue StandardError
