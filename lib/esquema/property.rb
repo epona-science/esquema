@@ -10,6 +10,7 @@ module Esquema
       datetime: "string",
       time: "string",
       string: "string",
+      citext: "string",
       text: "string",
       integer: "integer",
       float: "number",
