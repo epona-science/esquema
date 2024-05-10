@@ -12,10 +12,13 @@ module Esquema
     included do
       # Returns the JSON schema for the model.
       def self.json_schema
-        Esquema::Builder.new(self)
+        schema = Esquema::Builder.new(self)
           .build_schema
           .deep_transform_keys { |k| k.to_s.camelize(:lower) }
-          .to_json
+
+        schema[:required] = schema[:required].map { |f| f.to_s.camelize(:lower) }
+
+        schema.to_json
       end
 
       # Enhances the schema using the provided block.
