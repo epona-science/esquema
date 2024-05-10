@@ -94,7 +94,9 @@ module Esquema
 
       return unless object.respond_to?(:type)
 
-      @type = DB_TO_JSON_TYPE_MAPPINGS[object.type]
+      primary_type = DB_TO_JSON_TYPE_MAPPINGS[object.type]
+
+      @type = object.null ? [primary_type, "null"] : primary_type
     end
 
     # Builds the description attribute for the Property.
