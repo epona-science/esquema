@@ -16,7 +16,9 @@ module Esquema
           .build_schema
           .deep_transform_keys { |k| k.to_s.camelize(:lower) }
 
-        schema[:required] = schema[:required].map { |f| f.to_s.camelize(:lower) }
+        if schema["required"].present?
+          schema["required"] = schema["required"].map { |f| f.to_s.camelize(:lower) }
+        end
 
         schema.to_json
       end
