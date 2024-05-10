@@ -6,9 +6,9 @@ module Esquema
   class Property # rubocop:disable Metrics/ClassLength
     # Mapping of database types to JSON types.
     DB_TO_JSON_TYPE_MAPPINGS = {
-      date: "date",
-      datetime: "date-time",
-      time: "time",
+      date: "string",
+      datetime: "string",
+      time: "string",
       string: "string",
       text: "string",
       integer: "integer",
@@ -18,6 +18,12 @@ module Esquema
       boolean: "boolean",
       array: "array",
       object: "object"
+    }.freeze
+
+    DB_TO_DEFAULT_FORMAT_MAPPINGS = {
+      date: "date",
+      datetime: "date-time",
+      time: "time",
     }.freeze
 
     NUMERIC_CONSTRAINT_KEYWORDS = %i[minimum maximum exclusiveMinimum exclusiveMaximum multipleOf].freeze
@@ -38,7 +44,7 @@ module Esquema
 
     FORMAT_OPTIONS = %i[date-time date time email hostname ipv4 ipv6 uri uuid uri-reference uri-template].freeze
 
-    attr_reader :object, :options
+    attr_reader :object, :options, :attribute_type
 
     # Initializes a new Property instance.
     #
@@ -54,6 +60,7 @@ module Esquema
 
       @object = object
       @options = options
+      @attribute_type = @options.fetch(:attribute_type)
     end
 
     # Converts the Property instance to a JSON representation.
@@ -92,9 +99,16 @@ module Esquema
     def build_type
       return DB_TO_JSON_TYPE_MAPPINGS[:array] if object.try(:collection?)
 
-      return unless object.respond_to?(:type)
+      if attribute_type&.is_a?(ActiveRecord::Enum::EnumType)
+        data_type = :string
+      end
 
-      primary_type = DB_TO_JSON_TYPE_MAPPINGS[object.type]
+      data_type ||= attribute_type.type if attribute_type&.respond_to?(:type)
+      data_type ||= object.type if object.respond_to?(:type)
+
+      return unless data_type.present?
+
+      primary_type = DB_TO_JSON_TYPE_MAPPINGS[data_type]
 
       @type = object.null ? [primary_type, "null"] : primary_type
     end
@@ -124,7 +138,12 @@ module Esquema
     #
     # @return [Array, nil] The enum attribute.
     def build_enum
-      options[:enum]
+      return options[:enum] if options.key?(:enum)
+      return unless attribute_type.present?
+
+      if attribute_type.is_a?(ActiveRecord::Enum::EnumType)
+        return attribute_type.send(:mapping).keys
+      end
     end
 
     def build_minimum
@@ -160,7 +179,11 @@ module Esquema
     end
 
     def build_format
-      options[:format]
+      return options[:format] if options.key?(:format)
+
+      return unless object.respond_to?(:type)
+
+      DB_TO_DEFAULT_FORMAT_MAPPINGS.fetch(object.type, nil)
     end
 
     def build_maxitems # rubocop:disable Metrics/AbcSize
