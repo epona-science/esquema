@@ -71,7 +71,7 @@ module Esquema
       columns.each do |property|
         next if property.name.end_with?("_id") && config.exclude_foreign_keys?
 
-        required_properties << property.name
+        required_properties << property.name unless property.null
         options = enhancement_for(property.name)
         @properties[property.name] ||= Property.new(property, options)
       end
