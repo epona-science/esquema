@@ -88,15 +88,22 @@ module Esquema
     def build_default
       return unless object.respond_to?(:default)
 
-      default_value = object.default || options[:default].presence
+      default_value = options[:default].presence || object.default
 
-      @default = TypeCaster.cast(object.type, default_value) unless default_value.nil?
+      @default = TypeCaster.cast(derive_type, default_value) unless default_value.nil?
     end
 
     # Builds the type attribute for the Property.
     #
     # @return [String, nil] The type attribute.
     def build_type
+      @type = derive_type
+    end
+
+    # Derive type
+    #
+    # @return [String, nil] The type attribute.
+    def derive_type
       return DB_TO_JSON_TYPE_MAPPINGS[:array] if object.try(:collection?)
 
       if attribute_type&.is_a?(ActiveRecord::Enum::EnumType)
@@ -110,7 +117,7 @@ module Esquema
 
       primary_type = DB_TO_JSON_TYPE_MAPPINGS[data_type]
 
-      @type = object.null ? [primary_type, "null"] : primary_type
+      object.null ? [primary_type, "null"] : primary_type
     end
 
     # Builds the description attribute for the Property.

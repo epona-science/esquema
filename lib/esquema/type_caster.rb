@@ -3,7 +3,7 @@
 module Esquema
   module TypeCaster # rubocop:disable Style/Documentation
     def self.cast(type, value) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
-      case type
+      case type.to_sym
       when :string, :text
         value.to_s
       when :integer

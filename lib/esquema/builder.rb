@@ -76,6 +76,7 @@ module Esquema
         required_properties << property.name unless property.null
         options = enhancement_for(property.name)
         options[:attribute_type] = attribute_type
+        options[:default] = model.column_defaults.fetch(property.name)
         @properties[property.name] ||= Property.new(property, options)
       end
     end
