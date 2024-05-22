@@ -61,7 +61,7 @@ module Esquema
 
       @object = object
       @options = options
-      @attribute_type = @options.fetch(:attribute_type)
+      @attribute_type = @options[:attribute_type]
     end
 
     # Converts the Property instance to a JSON representation.
@@ -119,7 +119,7 @@ module Esquema
 
       primary_type = DB_TO_JSON_TYPE_MAPPINGS[data_type]
 
-      object.null ? [primary_type, "null"] : primary_type
+      (!object.respond_to?(:null) || object.null) ? [primary_type, "null"] : primary_type
     end
 
     # Builds the description attribute for the Property.
