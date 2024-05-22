@@ -40,6 +40,7 @@ module Esquema
     def build_properties
       add_properties_from_columns
       add_properties_from_associations
+      add_properties_from_attachments
       add_virtual_properties
       @properties
     end
@@ -90,6 +91,21 @@ module Esquema
       end
     end
 
+    # Adds properties from attachments
+    def add_properties_from_attachments
+      attachments.each do |attachment|
+        next if config.exclude_attachments?
+
+        options = { type: :string }
+
+        if attachment.is_a? ActiveStorage::Reflection::HasManyAttachedReflection
+          options = { type: :array, default: [] }
+        end
+
+        @properties[attachment.name] ||= Property.new(attachment, options)
+      end
+    end
+
     # Retrieves the columns of the model.
     #
     # @return [Array<ActiveRecord::ConnectionAdapters::Column>] The columns of the model.
@@ -112,6 +128,15 @@ module Esquema
       return [] unless model.respond_to?(:reflect_on_all_associations)
 
       model.reflect_on_all_associations
+    end
+
+    # Retrieves the attachments of the model.
+    #
+    # @return [Array<ActiveRecord::Reflection::AssociationReflection>] The attachments of the model.
+    def attachments
+      return [] unless model.respond_to?(:reflect_on_all_attachments)
+
+      model.reflect_on_all_attachments
     end
 
     # Checks if a column is excluded.

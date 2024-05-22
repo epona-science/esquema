@@ -111,6 +111,7 @@ module Esquema
         data_type = :string
       end
 
+      data_type ||= options[:type]
       data_type ||= attribute_type.type if attribute_type&.respond_to?(:type)
       data_type ||= object.type if object.respond_to?(:type)
 
