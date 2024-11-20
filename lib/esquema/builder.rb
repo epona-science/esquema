@@ -71,6 +71,7 @@ module Esquema
     def add_properties_from_columns
       columns.each do |property|
         next if property.name.end_with?("_id") && config.exclude_foreign_keys?
+        next if property.name.include?("__") && config.exclude_submodels?
 
         attribute_type = model.attribute_types[property.name]
 
