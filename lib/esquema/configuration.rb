@@ -7,7 +7,7 @@ module Esquema # rubocop:disable Style/Documentation
       :exclude_associations,
       :exclude_attachments,
       :exclude_foreign_keys,
-      :exclude_submodels,
+      :exclude_submodel_columns,
       :excluded_columns,
     )
 
@@ -18,7 +18,7 @@ module Esquema # rubocop:disable Style/Documentation
     def reset
       @exclude_associations = false
       @exclude_attachments = false
-      @exclude_submodels = true
+      @exclude_submodel_columns = true
       @exclude_foreign_keys = true
       @excluded_columns = []
     end
@@ -27,8 +27,8 @@ module Esquema # rubocop:disable Style/Documentation
       exclude_foreign_keys
     end
 
-    def exclude_submodels?
-      exclude_foreign_keys
+    def exclude_submodel_columns?
+      exclude_submodel_columns
     end
 
     def exclude_associations?
