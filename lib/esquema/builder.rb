@@ -71,11 +71,6 @@ module Esquema
     # Adds properties from columns to the schema.
     def add_properties_from_columns
       columns.each do |property|
-        puts '-----------------'
-        puts property.name
-        puts config.exclude_submodel_columns?
-        puts '-----------------'
-
         next if property.name.end_with?("_id") && config.exclude_foreign_keys?
         next if property.name.include?("__") && config.exclude_submodel_columns?
 
