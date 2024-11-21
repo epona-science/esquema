@@ -41,6 +41,7 @@ module Esquema
       add_properties_from_columns
       add_properties_from_associations
       add_properties_from_attachments
+      add_properties_from_submodels
       add_virtual_properties
       @properties
     end
@@ -80,6 +81,14 @@ module Esquema
         options[:attribute_type] = attribute_type
         options[:default] = model.column_defaults.fetch(property.name)
         @properties[property.name] ||= Property.new(property, options)
+      end
+    end
+
+    # Adds 
+    def add_properties_from_submodels
+      model.submodels.each do |key, submodel|
+        next if submodel.json_schema.nil?
+        @properties[key] = JSON.parse(submodel.json_schema)
       end
     end
 
